@@ -88,4 +88,5 @@ contract oneTransaction {
 
         emit contractEmptied(block.timestamp, address(this).balance);
     }
+    
 }
