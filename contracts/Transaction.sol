@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "hardhat/console.sol";
 
 contract oneTransaction {
-    address payable owner;
+    address payable public owner;
     uint256 recipientLimit = 20;
     uint256 OTFee;
 
@@ -61,6 +61,7 @@ contract oneTransaction {
         
         for (uint256 i = 0; i <= recipients.length; i++) {
             erc20token.transferFrom(msg.sender, recipients[i], amount);
+            tokenSent[msg.sender][recipients[i]][tokenAddress] = amount;
         }
     }
 
