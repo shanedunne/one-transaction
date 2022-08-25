@@ -20,7 +20,11 @@ describe("This is our main transaction testing scope", function () {
     });
 
     it("should ensure only the owner can empty the smart contract", async function () {
-        await onetransaction.connect(addr1).emptyContract();
-        expect(await onetransaction.emptyContract()).to.be.reverted;
-    });
+        await expect(onetransaction.connect(addr1).emptyContract()).to.be.reverted;
   });
+
+    it("should transfer ether to the selected recipients", async function (){
+        await onetransaction.sendEther([addr1.address, addr2.address, addr3.address], {value: ethers.utils.parseEther("1")})
+        // expect(await (addr1.address.getBalance)).to.equal(ethers.utils.parseEther("1"))
+    });
+});
