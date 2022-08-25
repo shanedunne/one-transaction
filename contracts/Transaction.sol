@@ -11,13 +11,6 @@ contract oneTransaction {
     uint256 recipientLimit = 20;
     uint256 OTFee;
 
-    // mappings to record a history of transactions
-
-    // sender => recipient => amount
-    mapping(address => mapping(address => uint256)) etherSent;
-
-    // sender => recipient => token address => amount
-    mapping(address => mapping(address => mapping(address => uint256))) tokenSent;
 
     constructor() {
         owner = payable(msg.sender);
@@ -45,8 +38,6 @@ contract oneTransaction {
             );
             require(sentEther, "Failed to send Ether");
 
-            // add record
-            etherSent[msg.sender][recipients[i]] = amount;
         }
         (bool sentOTF, bytes memory dataEther) = address(this).call{value: OTFee}("");
         require(sentOTF, "Failed to send Ether");
@@ -61,7 +52,6 @@ contract oneTransaction {
         
         for (uint256 i = 0; i <= recipients.length; i++) {
             erc20token.transferFrom(msg.sender, recipients[i], amount);
-            tokenSent[msg.sender][recipients[i]][tokenAddress] = amount;
         }
     }
 
