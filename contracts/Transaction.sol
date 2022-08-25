@@ -11,6 +11,26 @@ contract oneTransaction {
     uint256 recipientLimit = 20;
     uint256 OTFee;
 
+    // events
+
+    event etherSent(
+        address indexed sender,
+        address payable[] indexed recipients,
+        uint256 amount
+    );
+
+    event tokenSent(
+        address indexed sender,
+        address payable[] indexed recipients,
+        address indexed tokenAddress,
+        uint256 amount
+    );
+
+    event contractEmptied(
+        uint256 indexed time,
+        uint256 indexed balance
+    );
+
 
     constructor() {
         owner = payable(msg.sender);
@@ -41,6 +61,8 @@ contract oneTransaction {
         }
         (bool sentOTF, bytes memory dataEther) = address(this).call{value: OTFee}("");
         require(sentOTF, "Failed to send Ether");
+        
+        emit etherSent(msg.sender, recipients, amount);
     }
 
     function sendToken(address tokenAddress, address payable[] memory recipients, uint256 amount) external payable {
@@ -53,6 +75,8 @@ contract oneTransaction {
         for (uint256 i = 0; i <= recipients.length; i++) {
             erc20token.transferFrom(msg.sender, recipients[i], amount);
         }
+
+        emit tokenSent(msg.sender, recipients, tokenAddress, amount);
     }
 
     // allows owner to withdraw the fees made from other users
@@ -61,5 +85,7 @@ contract oneTransaction {
             value: address(this).balance
         }("");
         require(sent, "Failed to send Ether");
+
+        emit contractEmptied(block.timestamp, address(this).balance);
     }
 }
