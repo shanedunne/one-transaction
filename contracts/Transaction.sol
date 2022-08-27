@@ -51,8 +51,9 @@ contract oneTransaction {
 
         // set fee at 1% of each  transaction amount
         OTFee = (amount / 100) * recipients.length;
-        require(msg.sender.balance >= (amount * recipients.length) + OTFee);
-        for (uint256 i = 0; i <= recipients.length; i++) {
+        require(msg.sender.balance >= (amount * recipients.length) + OTFee, "not enother ether");
+        uint256 i = 0;
+        for (i; i < recipients.length; i++) {
             (bool sentEther, bytes memory data) = recipients[i].call{value: amount}(
                 ""
             );
@@ -60,7 +61,7 @@ contract oneTransaction {
 
         }
         (bool sentOTF, bytes memory dataEther) = address(this).call{value: OTFee}("");
-        require(sentOTF, "Failed to send Ether");
+        require(sentOTF, "Failed to send contract fee");
         
         emit etherSent(msg.sender, recipients, amount);
     }
@@ -88,5 +89,5 @@ contract oneTransaction {
 
         emit contractEmptied(block.timestamp, address(this).balance);
     }
-    
+
 }
