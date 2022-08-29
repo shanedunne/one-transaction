@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 // Import this file to use console.log
 import "hardhat/console.sol";
 
-contract oneTransaction {
+contract oneTransaction is ReentrancyGuard {
+
+    using SafeERC20 for IERC20;
+
     address payable public owner;
     uint256 recipientLimit = 20;
     uint256 OTFee;
@@ -22,7 +27,7 @@ contract oneTransaction {
     event tokenSent(
         address indexed sender,
         address payable[] indexed recipients,
-        address indexed tokenAddress,
+        IERC20 indexed tokenAddress,
         uint256 amount
     );
 
@@ -44,19 +49,19 @@ contract oneTransaction {
 
     // function for sending ether only
     function sendEther(address payable[] memory recipients, uint256 amount)
-        external
+        public
         payable
     {
-        require(recipients.length <= recipientLimit);
-
         // set fee at 1% of each  transaction amount
         OTFee = (amount / 100) * recipients.length;
-        require(msg.sender.balance >= (amount * recipients.length) + OTFee, "not enother ether");
+
+        require(recipients.length > 0);
+        require(recipients.length <= recipientLimit);
+        require((recipients.length * amount) + OTFee == msg.value);
+
         uint256 i = 0;
         for (i; i < recipients.length; i++) {
-            (bool sentEther, bytes memory data) = recipients[i].call{value: amount}(
-                ""
-            );
+            (bool sentEther, bytes memory data) = recipients[i].call{value: amount}("");
             require(sentEther, "Failed to send Ether");
 
         }
@@ -66,22 +71,30 @@ contract oneTransaction {
         emit etherSent(msg.sender, recipients, amount);
     }
 
-    function sendToken(address tokenAddress, address payable[] memory recipients, uint256 amount) external payable {
+    function sendToken(IERC20 tokenAddress, address payable[] memory recipients, uint256 amount)
+        public
+        payable
+        nonReentrant {
         require(recipients.length <= recipientLimit);
-        ERC20 erc20token = ERC20(tokenAddress);
-        require(erc20token.balanceOf(msg.sender) >= amount * recipients.length);
+        require(tokenAddress.balanceOf(msg.sender) >= amount * recipients.length);
         // set fee to 0.01 ether
         OTFee == 10e16 wei;
+
+        // get total amount of tokens
+        uint256 totalAmount = recipients.length * amount;
+        tokenAddress.transferFrom(msg.sender, address(this), totalAmount);
         
-        for (uint256 i = 0; i <= recipients.length; i++) {
-            erc20token.transferFrom(msg.sender, recipients[i], amount);
+        for (uint256 i = 0; i < recipients.length; i++) {
+            tokenAddress.transfer(recipients[i], amount);
         }
 
         emit tokenSent(msg.sender, recipients, tokenAddress, amount);
     }
 
     // allows owner to withdraw the fees made from other users
-    function emptyContract() external isOwner {
+    function emptyContract()
+        external
+        isOwner {
         (bool sent, bytes memory data) = owner.call{
             value: address(this).balance
         }("");
