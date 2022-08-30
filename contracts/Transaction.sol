@@ -13,8 +13,10 @@ contract oneTransaction is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     address payable public owner;
+    address payable public contractAddress = payable(address(this));
     uint256 recipientLimit = 20;
     uint256 OTFee;
+
 
     // events
 
@@ -57,7 +59,7 @@ contract oneTransaction is ReentrancyGuard {
 
         require(recipients.length > 0);
         require(recipients.length <= recipientLimit);
-        require((recipients.length * amount) + OTFee == msg.value);
+        require((recipients.length * amount) + OTFee < msg.sender.balance, "Balance too low");
 
         uint256 i = 0;
         for (i; i < recipients.length; i++) {
@@ -75,10 +77,15 @@ contract oneTransaction is ReentrancyGuard {
         public
         payable
         nonReentrant {
-        require(recipients.length <= recipientLimit);
-        require(tokenAddress.balanceOf(msg.sender) >= amount * recipients.length);
+        
         // set fee to 0.01 ether
         OTFee == 10e16 wei;
+
+        require(recipients.length <= recipientLimit);
+        require(tokenAddress.balanceOf(msg.sender) >= amount * recipients.length);
+        require(msg.sender.balance > OTFee);
+        
+        
 
         // get total amount of tokens
         uint256 totalAmount = recipients.length * amount;
@@ -88,6 +95,8 @@ contract oneTransaction is ReentrancyGuard {
             tokenAddress.transfer(recipients[i], amount);
         }
 
+        // (bool sentOTF, bytes memory dataEther) = address(this).call{value: OTFee}("");
+        // require(sentOTF, "Failed to send contract fee");
         emit tokenSent(msg.sender, recipients, tokenAddress, amount);
     }
 
@@ -102,5 +111,7 @@ contract oneTransaction is ReentrancyGuard {
 
         emit contractEmptied(block.timestamp, address(this).balance);
     }
+
+    receive() external payable {}
 
 }
