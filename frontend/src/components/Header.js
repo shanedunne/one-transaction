@@ -1,9 +1,38 @@
 import { ethers } from "ethers";
-import style from "./Header.module.css";
 import React, { useState, useEffect } from "react";
-import { Identicon, EthAddress } from "ethereum-react-components";
+import styled from "styled-components";
+import Button from "./styled/Button.styled";
+import { BiWalletAlt } from "react-icons/bi";
+import { SiEthereum } from "react-icons/si";
+import { BsPerson } from "react-icons/bs";
+import { Colors } from "../Theme";
 
-export default function App() {
+const Title = styled.h1`
+  font-family: "Kdam Thmor Pro", sans-serif;
+  font-weight: normal;
+  font-size: 1.5rem;
+  text-align: center;
+  justify-content: center;
+`;
+
+const WalletContainer = styled.div`
+  display: flex;
+  background-color: ${Colors.Background};
+  height: 6vh;
+  font-size: 1.7rem;
+  padding-top: 5px;
+  justify-content: space-between;
+  padding: 0 1rem;
+  align-items: center;
+  vertical-align: middle;
+`;
+const WalletIconContainer = styled.span``;
+
+const HeaderAddress = styled.span`
+  padding-right: 1rem;
+`;
+
+export default function WalletHeader() {
   const [address, setAddress] = useState("");
   const [theProvider, setTheProvider] = useState(null);
 
@@ -52,20 +81,31 @@ export default function App() {
     // here we set the address from the  signer
     setAddress(walletAddress);
   }
+  let addressShort = address.slice(0, 7);
 
   if (address) {
     return (
-      <div className={style.HeaderConnected}>
-        <Identicon className={style.addressId} address={address} />
-      </div>
+      <WalletContainer>
+        <Title>Authentic</Title>
+        <HeaderAddress>{addressShort}</HeaderAddress>
+        <SiEthereum
+          style={{ marginRight: "1.5rem", verticalAlign: "middle" }}
+        />
+        <BsPerson style={{ verticalAlign: "middle" }} />
+      </WalletContainer>
     );
   } else {
     return (
-      <div className={style.header}>
-        <button className={style.button} onClick={handleLinkWallet}>
-          Connect Wallet (Goerli)
-        </button>
-      </div>
+      <WalletContainer>
+        <Title>Authentic</Title>
+        <Button
+          onClick={handleLinkWallet}
+          style={{ justifyContent: "center", cursor: "pointer" }}
+        >
+          Connect
+          <BiWalletAlt />
+        </Button>
+      </WalletContainer>
     );
   }
 }
