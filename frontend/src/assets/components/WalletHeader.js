@@ -23,7 +23,7 @@ const WalletContainer = styled.div`
   padding-top: 5px;
   justify-content: space-between;
   padding: 0 1rem;
-  align-items: center;
+  align-items: right;
   vertical-align: middle;
 `;
 const WalletIconContainer = styled.span``;
@@ -86,18 +86,14 @@ export default function WalletHeader() {
   if (address) {
     return (
       <WalletContainer>
-        <Title>Authentic</Title>
+        <Title>One Transaction</Title>
         <HeaderAddress>{addressShort}</HeaderAddress>
-        <SiEthereum
-          style={{ marginRight: "1.5rem", verticalAlign: "middle" }}
-        />
-        <BsPerson style={{ verticalAlign: "middle" }} />
       </WalletContainer>
     );
   } else {
     return (
       <WalletContainer>
-        <Title>Authentic</Title>
+        <Title>One Transaction</Title>
         <Button
           onClick={handleLinkWallet}
           style={{ justifyContent: "center", cursor: "pointer" }}
