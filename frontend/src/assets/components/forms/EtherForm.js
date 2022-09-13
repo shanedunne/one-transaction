@@ -9,7 +9,8 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import { v4 as uuidv4 } from "uuid";
 
-var etherAmount, etherRecipients;
+var etherAmount;
+var etherRecipients = [];
 
 const Title = styled.h1`
   font-family: "Kdam Thmor Pro", sans-serif;
@@ -90,17 +91,8 @@ export default function EtherForm() {
     e.preventDefault();
     console.log(recipients);
 
-    // daoOwner = e.target.etherAmount.value;
-    // tName = e.target.etherRecipients.value;
-
-    const res = await axios
-      .post("/server/generate-dao", {
-        etherAmount,
-        etherRecipients,
-      })
-      .then((result) => {
-        console.log(result);
-      });
+    // extract addresses from recipients and push into a etherRecipients array
+    recipients.map((x) => etherRecipients.push(x.address));
   };
 
   return (
