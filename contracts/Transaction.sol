@@ -14,7 +14,7 @@ contract oneTransaction is ReentrancyGuard {
 
     address payable public owner;
     address payable public contractAddress = payable(address(this));
-    uint256 recipientLimit = 20;
+    uint256 recipientLimit = 10;
     uint256 OTFee;
 
 
