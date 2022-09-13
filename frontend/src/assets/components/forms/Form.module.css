@@ -1,0 +1,87 @@
+.heading {
+  font-weight: 300;
+  color: #fafafa;
+  text-align: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #bc8034;
+}
+
+.form {
+  background: #0f0e0e;
+  max-width: 360px;
+  margin: 0 auto;
+  padding-top: 80px;
+}
+
+.para {
+  color: #fafafa;
+  text-align: center;
+}
+
+.para::before {
+  display: inline;
+  content: "⚠ ";
+}
+
+.input,
+.select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid white;
+  padding: 10px 15px;
+  margin-bottom: 25px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.label {
+  line-height: 2;
+  text-align: left;
+  display: block;
+  margin-bottom: 13px;
+  margin-top: 20px;
+  color: white;
+  font-size: 14px;
+  font-weight: 200;
+}
+
+.input[type="submit"] {
+  width: 100%;
+  background: #bc8034;
+  color: #fafafa;
+  text-transform: uppercase;
+  border: none;
+  margin-top: 40px;
+  padding: 20px;
+  font-size: 16px;
+  font-weight: 100;
+  letter-spacing: 10px;
+}
+
+.input[type="submit"]:hover {
+  background: #db9841;
+  color: #fafafa;
+}
+
+.input[type="button"]:active,
+.input[type="submit"]:active {
+  transition: 0.3s all;
+  transform: translateY(3px);
+  border: 1px solid transparent;
+  opacity: 0.8;
+}
+
+.input:disabled {
+  opacity: 0.4;
+}
+
+.input[type="button"]:hover {
+  transition: 0.3s all;
+}
+
+.input[type="button"],
+.input[type="submit"] {
+  -webkit-appearance: none;
+}

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Colors } from "./assets/Theme";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import WalletHeader from "./assets/components/WalletHeader";
+import EtherForm from "./assets/components/forms/EtherForm";
 
 const AppEl = styled.div`
   display: flex;
@@ -26,6 +27,7 @@ function App() {
     <Router>
       <AppEl>
         <WalletHeader />
+        <EtherForm />
       </AppEl>
     </Router>
   );
