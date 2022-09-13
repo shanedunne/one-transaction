@@ -5,6 +5,7 @@ import { instance } from "../../../utils/axiosConfig";
 import style from "./Form.module.css";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import { v4 as uuidv4 } from "uuid";
@@ -63,11 +64,15 @@ export default function EtherForm() {
             name="owner"
             value={recipient.address}
           />
-          <RemoveIcon
+          <IconButton
             disabled={recipients.length === 1}
             onClick={() => handleRemoveRecipients(recipient.id)}
-          />
-          <AddIcon onClick={handleAddRecipients} />
+          >
+            <RemoveIcon />
+          </IconButton>
+          <IconButton onClick={handleAddRecipients}>
+            <AddIcon />
+          </IconButton>
         </div>
       ))}
       <TextField
