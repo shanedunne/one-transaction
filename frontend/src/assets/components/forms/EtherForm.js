@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
-import axios from "axios";
-import { instance } from "../../../utils/axiosConfig";
 import styled from "styled-components";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import { v4 as uuidv4 } from "uuid";
-
-var etherAmount;
-var etherRecipients = [];
+import ABI from "./abi.json";
+import WalletHeader from "../WalletHeader";
 
 const Title = styled.h1`
   font-family: "Kdam Thmor Pro", sans-serif;
@@ -37,8 +34,9 @@ const Button = styled.button`
   border-radius: 3px;
 `;
 
-const Input = styled.input`
-  font-size: 18px;
+const AddressInput = styled.input`
+  width: 26rem;
+  font-size: 15px;
   padding: 10px;
   margin: 10px;
   border: solid 1px;
@@ -47,17 +45,44 @@ const Input = styled.input`
   }
 `;
 
+const AmountInput = styled.input`
+  width: 10rem;
+  font-size: 14px;
+  padding: 10px;
+  margin: 10px;
+  border: solid 1px;
+  text-align: center;
+  ::placeholder {
+    color: palevioletred;
+  }
+`;
+
+var etherAmount;
+var etherRecipients = [];
+
+// test addresses
+// 0xBEE2e019E38032fAF6D89548c3BB3671E5D91237
+// 0x1Cf9d9f7cb3Be5Be4fe755Fc108114dD1579fBA3
+
+// ether information
+const contractAddress = "0xbe0fbf497f2ce9231e1bcd87543f1aba2532d5bd";
+let localProvider = WalletHeader.provider;
+
+let contract = new ethers.Contract(contractAddress, ABI, localProvider);
+
 export default function EtherForm() {
   const [recipients, setRecipients] = useState([{ id: uuidv4(), address: "" }]);
 
   const [formData, setFormData] = useState({
     amount: "",
-    sender: "",
   });
+
+  console.log("LOCAL" + localProvider);
 
   // handles changes to form fields except recipients
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    etherAmount = formData.amount;
   };
 
   // handles changes to the recipient fields
@@ -93,6 +118,12 @@ export default function EtherForm() {
 
     // extract addresses from recipients and push into a etherRecipients array
     recipients.map((x) => etherRecipients.push(x.address));
+
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+    const signer = await localProvider.getSigner();
+    await signer;
+    // call the contract
+    await contract.sendEther(etherRecipients, etherAmount);
   };
 
   return (
@@ -102,7 +133,7 @@ export default function EtherForm() {
         <InputContainer>
           {recipients.map((recipient, i) => (
             <div key={i}>
-              <Input
+              <AddressInput
                 placeholder="Recipient Address"
                 name="address"
                 value={recipient.address}
@@ -124,7 +155,7 @@ export default function EtherForm() {
               </IconButton>
             </div>
           ))}
-          <Input
+          <AmountInput
             placeholder="Ether Amount"
             name="amount"
             value={formData.etherAmount}
