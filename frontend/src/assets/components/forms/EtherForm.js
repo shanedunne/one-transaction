@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import styled from "styled-components";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
@@ -65,10 +65,15 @@ var etherRecipients = [];
 // 0x1Cf9d9f7cb3Be5Be4fe755Fc108114dD1579fBA3
 
 // ether information
-const contractAddress = "0xbe0fbf497f2ce9231e1bcd87543f1aba2532d5bd";
-let localProvider = WalletHeader.provider;
+const contractAddress = "0x17fA1a1B1814958f32aCcFA2695396860C1e93A1";
 
-let contract = new ethers.Contract(contractAddress, ABI, localProvider);
+let contract;
+
+// gas margin increaser function
+
+function gasMargin(estimate, addition) {
+  return estimate * addition;
+}
 
 export default function EtherForm() {
   const [recipients, setRecipients] = useState([{ id: uuidv4(), address: "" }]);
@@ -77,12 +82,10 @@ export default function EtherForm() {
     amount: "",
   });
 
-  console.log("LOCAL" + localProvider);
-
   // handles changes to form fields except recipients
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    etherAmount = formData.amount;
+    console.log(typeof formData.amount);
   };
 
   // handles changes to the recipient fields
@@ -119,11 +122,27 @@ export default function EtherForm() {
     // extract addresses from recipients and push into a etherRecipients array
     recipients.map((x) => etherRecipients.push(x.address));
 
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-    const signer = await localProvider.getSigner();
+    let provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = await provider.getSigner();
     await signer;
+
+    contract = new ethers.Contract(contractAddress, ABI, signer);
+
+    etherAmount = ethers.utils.parseUnits(formData.amount, "ether");
+
+    // handle gas estimation
+    const gasEstimated = await contract.estimateGas.sendEther(
+      etherRecipients,
+      etherAmount
+    );
+
     // call the contract
-    await contract.sendEther(etherRecipients, etherAmount);
+    const tx = await contract.sendEther(etherRecipients, etherAmount, {
+      gasLimit: Math.ceil(gasMargin(gasEstimated, 1.1)),
+    });
+
+    await tx.wait();
   };
 
   return (
@@ -158,7 +177,7 @@ export default function EtherForm() {
           <AmountInput
             placeholder="Ether Amount"
             name="amount"
-            value={formData.etherAmount}
+            value={formData.amount}
             onChange={handleFormChange}
           />
         </InputContainer>

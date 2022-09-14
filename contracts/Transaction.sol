@@ -51,15 +51,19 @@ contract oneTransaction is ReentrancyGuard {
 
     // function for sending ether only
     function sendEther(address payable[] memory recipients, uint256 amount)
-        public
+        external
         payable
     {
         // set fee at 1% of each  transaction amount
-        OTFee = (amount / 100) * recipients.length;
+        // OTFee = (amount / 100) * recipients.length;
 
         require(recipients.length > 0);
         require(recipients.length <= recipientLimit);
-        require((recipients.length * amount) + OTFee < msg.sender.balance, "Balance too low");
+        // require((recipients.length * amount) + OTFee < msg.sender.balance, "Balance too low");
+
+        uint256 totalAmount = recipients.length * amount;
+        (bool sendTotal, bytes memory data) = address(this).call{value: totalAmount}("");
+            require(sendTotal, "Failed to send amount to contract");
 
         uint256 i = 0;
         for (i; i < recipients.length; i++) {
@@ -67,8 +71,8 @@ contract oneTransaction is ReentrancyGuard {
             require(sentEther, "Failed to send Ether");
 
         }
-        (bool sentOTF, bytes memory dataEther) = address(this).call{value: OTFee}("");
-        require(sentOTF, "Failed to send contract fee");
+        // (bool sentOTF, bytes memory dataEther) = address(this).call{value: OTFee}("");
+        // require(sentOTF, "Failed to send contract fee");
         
         emit etherSent(msg.sender, recipients, amount);
     }

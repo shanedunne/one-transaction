@@ -1,4 +1,5 @@
 const { expect, assert } = require("chai");
+const { BigNumber } = require("ethers");
 const { ethers } = require("hardhat");
 const provider = ethers.provider;
 
@@ -39,13 +40,21 @@ describe("This is our main transaction testing scope", function () {
   });
 
   it("should transfer ether to the selected recipients", async function () {
+    console.log("before" + (await provider.getBalance(addr1.address)));
     await onetransaction.sendEther(
       [addr1.address, addr2.address, addr3.address],
-      ethers.utils.parseEther("0.01")
+      ethers.utils.parseUnits("0.5", "ether"),
+      { value: ethers.utils.parseUnits("1.5", "ether") }
     );
-    expect(await provider.getBalance(addr1.address)).to.equal(
-      ethers.utils.parseEther("0.01")
+    console.log(
+      "contract balance" + (await provider.getBalance(onetransaction.address))
     );
+    let initialBalance = await provider.getBalance(addr1.address);
+    console.log("initial" + initialBalance);
+    let newBalance = initialBalance + ethers.utils.parseUnits("1", "ether");
+    console.log("new-balance" + newBalance);
+    // expect(await provider.getBalance(addr1.address)).to.equal(newBalance);
+    console.log("after" + (await provider.getBalance(addr1.address)));
   });
 
   // tests related to the sendToken function
